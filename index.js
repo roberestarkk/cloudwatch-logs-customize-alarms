@@ -116,7 +116,7 @@ function filterLogEvents (parameters) {
       if (err) {
         reject(err)
       } else {
-        console.dir('FilterLogEvents response', data)
+        console.log('FilterLogEvents response', data)
         events = data.events
 
         return Promise.resolve()
@@ -144,11 +144,10 @@ function filterLogEvents (parameters) {
 
 function generateNotificationContent (events, message, logGroupName) {
   console.log('Events are:', events);
-  let style = '<style> pre {color: red;} </style>';
-  let logData = '<br/>Logs:<br/>' + style;
+  let logData = '<br/>Logs:<br/>';
   for (let i in events) {
-    logData += '<pre>Message:' + JSON.stringify(events[i]['message']) + '</pre>';
-    logData += '<a href="https://console.aws.amazon.com/cloudwatch/home?region=' + REGION + '#logEventViewer:group=' + logGroupName + ';stream=' + events[i]['logStreamName'] + '">More logs</a>'
+    logData += '<b>Message:</b>' + JSON.stringify(events[i]['message']) + '<br />';
+    logData += '<a href="https://console.aws.amazon.com/cloudwatch/home?region=' + REGION + '#logEventViewer:group=' + logGroupName + ';stream=' + events[i]['logStreamName'] + '">Click to open logs in CloudWatch console</a>'
   }
 
   let date = new Date(message.StateChangeTime);
@@ -157,6 +156,7 @@ function generateNotificationContent (events, message, logGroupName) {
     'Region: ' + message.Region + '<br/>' +
     'Alarm Time: ' + date.toString() + '<br/>' +
     logData;
+  text += '<br />Best regards,<br />Yours Log Provider'
 
   return {
     Message: text,
