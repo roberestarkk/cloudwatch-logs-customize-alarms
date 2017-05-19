@@ -95,7 +95,7 @@ exports.handler = function (event, context, callback) {
 
 function getLogsAndSendNotification (message, metricFilterData) {
   let timestamp = Date.parse(message.StateChangeTime);
-  let offset = message.Trigger.Period * message.Trigger.EvaluationPeriods * 1000;
+  let offset = message.Trigger.Period * message.Trigger.EvaluationPeriods * 1000 + 1000; // add a second margin
   let metricFilter = metricFilterData.metricFilters[0];
   let parameters = {
     'logGroupName': metricFilter.logGroupName,
@@ -144,10 +144,11 @@ function filterLogEvents (parameters) {
 
 function generateNotificationContent (events, message, logGroupName) {
   console.log('Events are:', events);
-  let logData = '<br/>Logs:<br/>';
+  let logData = '<br/>Logs:<br/><br />';
   for (let i in events) {
     logData += '<b>Message:</b>' + JSON.stringify(events[i]['message']) + '<br />';
-    logData += '<a href="https://console.aws.amazon.com/cloudwatch/home?region=' + REGION + '#logEventViewer:group=' + logGroupName + ';stream=' + events[i]['logStreamName'] + '">Click to open logs in CloudWatch console</a>'
+    logData += '<a href="https://console.aws.amazon.com/cloudwatch/home?region=' + REGION + '#logEventViewer:group=' + logGroupName + ';stream=' + events[i]['logStreamName'] + '">Click to open logs in CloudWatch console</a><br />'
+    logData += '<br />'
   }
 
   let date = new Date(message.StateChangeTime);
@@ -160,7 +161,7 @@ function generateNotificationContent (events, message, logGroupName) {
 
   return {
     Message: text,
-    Subject: 'Details for Alarm - ' + message.AlarmName,
+    Subject: 'PRD/STG: Details for Alarm - ' + message.AlarmName,
     TopicArn: NOTIFICATION_ARN
   };
 }
