@@ -44,17 +44,6 @@ exports.handler = function (event, context, callback) {
     })
     .then(logEvents => {
       notificationContent = generateNotificationContent(logEvents, message, metricFilter.logGroupName)
-
-      return new Promise((resolve, reject) => {
-        sns.publish(notificationContent, (err, data) => {
-          if (err) {
-            reject(err)
-          } else {
-            console.log("===NOTIFICATION SENT===");
-            resolve(data)
-          }
-        })
-      })
     })
     .then(() => {
       return new Promise((resolve, reject) => {
