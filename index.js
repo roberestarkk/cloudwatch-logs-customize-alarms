@@ -95,7 +95,7 @@ exports.handler = function (event, context, callback) {
 
 function getLogsAndSendNotification (message, metricFilterData) {
   let timestamp = Date.parse(message.StateChangeTime);
-  let offset = message.Trigger.Period * message.Trigger.EvaluationPeriods * 1000 + 1000; // add a second margin
+  let offset = 2 * message.Trigger.Period * message.Trigger.EvaluationPeriods * 1000; // double the offset
   let metricFilter = metricFilterData.metricFilters[0];
   let parameters = {
     'logGroupName': metricFilter.logGroupName,
