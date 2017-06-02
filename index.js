@@ -6,7 +6,7 @@ let sns = new aws.SNS();
 let ses = new aws.SES();
 
 const FROM_MAIL = 'rafal@spinify.com'
-const NOTIFY_MAILS = ['rafal@spinify.com', 'errors@spinify.com']
+const NOTIFY_MAILS = ['rafal@spinify.com', 'errors@spinify.com', 'justin@spinify.com', 'brian@spinify.com', 'jason@spinify.com']
 const NOTIFICATION_ARN = 'arn:aws:sns:us-west-2:378652543277:email-on-warn'
 const REGION = 'us-west-2'
 const SINGLE_ERROR_LENGTH = 255
