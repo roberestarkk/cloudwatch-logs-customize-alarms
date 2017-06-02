@@ -6,9 +6,10 @@ let sns = new aws.SNS();
 let ses = new aws.SES();
 
 const FROM_MAIL = 'rafal@spinify.com'
-const NOTIFY_MAILS = ['errors@spinify.com']
+const NOTIFY_MAILS = ['rafal@spinify.com', 'errors@spinify.com']
 const NOTIFICATION_ARN = 'arn:aws:sns:us-west-2:378652543277:email-on-warn'
 const REGION = 'us-west-2'
+const SINGLE_ERROR_LENGTH = 255
 
 exports.handler = function (event, context, callback) {
   console.dir(JSON.stringify(event, null, 2))
@@ -46,6 +47,8 @@ exports.handler = function (event, context, callback) {
       notificationContent = generateNotificationContent(logEvents, message, metricFilter.logGroupName)
     })
     .then(() => {
+      console.log('Send an e-mail', notificationContent)
+
       return new Promise((resolve, reject) => {
         ses.sendEmail({
           Destination: {
@@ -63,6 +66,8 @@ exports.handler = function (event, context, callback) {
           },
           Source: FROM_MAIL
         }, (err, data) => {
+          console.log('MAIL_RESULT', err, data)
+
           if (err) {
             reject(err)
           } else {
@@ -135,8 +140,8 @@ function generateNotificationContent (events, message, logGroupName) {
   console.log('Events are:', events);
   let logData = '<br/>Logs:<br/><br />';
   for (let i in events) {
-    logData += '<b>Message:</b>' + JSON.stringify(events[i]['message']) + '<br />';
-    logData += '<a href="https://console.aws.amazon.com/cloudwatch/home?region=' + REGION + '#logEventViewer:group=' + logGroupName + ';stream=' + events[i]['logStreamName'] + '">Click to open logs in CloudWatch console</a><br />'
+    logData += '<b>Message:</b>' + JSON.stringify(events[i]['message']).substr(0, SINGLE_ERROR_LENGTH) + '<br />';
+    logData += '<a href="https://console.aws.amazon.com/cloudwatch/home?region=' + REGION + '#logEventViewer:group=' + logGroupName + ';stream=' + events[i]['logStreamName'] + ';reftime=' + events[i]['timestamp'] + ';refid=' + events[i]['eventId'] + '">Click to open logs in CloudWatch console</a><br />'
     logData += '<br />'
   }
 
