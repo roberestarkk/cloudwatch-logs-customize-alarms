@@ -1,3 +1,7 @@
+/*
+ * Source: https://web.archive.org/web/20201027045757/https://github.com/rafaljanicki/cloudwatch-logs-customize-alarms
+*/
+
 'use strict'
 
 let aws = require('aws-sdk');
@@ -5,11 +9,11 @@ let cwl = new aws.CloudWatchLogs();
 let sns = new aws.SNS();
 let ses = new aws.SES();
 
-const FROM_MAIL = 'rafal@spinify.com'
-const NOTIFY_MAILS = ['rafal@spinify.com', 'errors@spinify.com', 'justin@spinify.com', 'brian@spinify.com', 'jason@spinify.com']
-const NOTIFICATION_ARN = 'arn:aws:sns:us-west-2:378652543277:email-on-warn'
-const REGION = 'us-west-2'
-const SINGLE_ERROR_LENGTH = 255
+const FROM_MAIL = 'FROM_EMAIL'
+const NOTIFY_MAILS = ['TO_EMAIL','TO_EMAIL_ALSO']
+const NOTIFICATION_ARN = 'REGION'
+const REGION = 'REGION'
+const UNWANTED_ATTRIBUTES = ["accessKeyId", "accountId", "attributes", "awsRegion", "code", "creationDate", "eventType", "eventVersion", "mfaAuthenticated", "principalId", "recipientAccountId", "requestID", "requestId", "sessionContext", "sessionIssuer", "sourceIPAddress", "type", "userAgent", "userName", "webIdFederationData"]
 
 exports.handler = function (event, context, callback) {
   console.dir(JSON.stringify(event, null, 2))
@@ -136,12 +140,20 @@ function filterLogEvents (parameters) {
   })
 }
 
+function unwantedAttributesReplacer(key, value) {
+  if (UNWANTED_ATTRIBUTES.includes(key)){
+    return undefined
+  }
+  return value
+}
+
 function generateNotificationContent (events, message, logGroupName) {
   console.log('Events are:', events);
   let logData = '<br/>Logs:<br/><br />';
   for (let i in events) {
-    logData += '<b>Message:</b>' + JSON.stringify(events[i]['message']).substr(0, SINGLE_ERROR_LENGTH) + '<br />';
-    logData += '<a href="https://console.aws.amazon.com/cloudwatch/home?region=' + REGION + '#logEventViewer:group=' + logGroupName + ';stream=' + events[i]['logStreamName'] + ';reftime=' + events[i]['timestamp'] + ';refid=' + events[i]['eventId'] + '">Click to open logs in CloudWatch console</a><br />'
+    logData += '<b>Message:</b><pre>' + JSON.stringify(JSON.parse(events[i]['message']),unwantedAttributesReplacer,2) + '<pre><br />';
+    
+    logData += '<a href="https://console.aws.amazon.com/cloudwatch/home?region=' + REGION + '#logEventViewer:group=' + logGroupName + ';stream=' + events[i]['logStreamName'] + ';reftime=' + events[i]['timestamp'] + ';refid=' + events[i]['eventID'] + '">Click to open logs in CloudWatch console</a><br />'
     logData += '<br />'
   }
 
@@ -151,7 +163,7 @@ function generateNotificationContent (events, message, logGroupName) {
     'Region: ' + message.Region + '<br/>' +
     'Alarm Time: ' + date.toString() + '<br/>' +
     logData;
-  text += '<br />Best regards,<br />Yours Log Provider'
+  text += '<br />Best regards,<br />Your Logs Provider'
 
   return {
     Message: text,
