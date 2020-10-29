@@ -11,7 +11,7 @@ let ses = new aws.SES();
 
 const FROM_MAIL = 'FROM_EMAIL'
 const NOTIFY_MAILS = ['TO_EMAIL','TO_EMAIL_ALSO']
-const NOTIFICATION_ARN = 'REGION'
+const NOTIFICATION_ARN = 'ARN_FOR_SNS_TOPIC'
 const REGION = 'REGION'
 const UNWANTED_ATTRIBUTES = ["accessKeyId", "accountId", "attributes", "awsRegion", "code", "creationDate", "eventType", "eventVersion", "mfaAuthenticated", "principalId", "recipientAccountId", "requestID", "requestId", "sessionContext", "sessionIssuer", "sourceIPAddress", "type", "userAgent", "userName", "webIdFederationData"]
 
